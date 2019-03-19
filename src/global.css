@@ -1,0 +1,44 @@
+html,
+body,
+:global(#root) {
+  height: 100%;
+}
+.ant-layout {
+  height: 100%;
+}
+.ant-layout-sider {
+  background-color: rgb(236, 239, 243);
+}
+.web-header {
+  display: block;
+}
+
+.web-title {
+  font-size: 28px;
+  font-weight: lighter;
+  color: #fff;
+  text-shadow: 1px 1px 1px #001529;
+}
+.current-user {
+  float: right;
+  font-size: 12px;
+  font-weight: lighter;
+}
+.current-user label {
+  color: #fff;
+}
+.current-user a {
+  color: #fff;
+}
+.current-user a:hover {
+  color: cyan;
+}
+.copyright {
+  border-top: 1px solid silver;
+  font-size: 12px;
+  text-align: center;
+  color: gray;
+}
+.ant-menu a{
+  color:#656565;
+}
