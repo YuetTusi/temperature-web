@@ -4,7 +4,10 @@ import LeftMenu from "@/components/LeftMenu";
 import WebHeader from "@/components/WebHeader";
 const { Header, Footer, Content, Sider } = Layout;
 
-class DistryctLayout extends Component {
+/**
+ * @description 总布局页
+ */
+class CommonLayout extends Component {
   constructor(props) {
     super(props);
   }
@@ -36,4 +39,4 @@ class DistryctLayout extends Component {
   }
 }
 
-export default DistryctLayout;
+export default CommonLayout;
