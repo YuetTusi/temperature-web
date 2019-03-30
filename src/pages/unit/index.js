@@ -124,6 +124,24 @@ export default class Index extends Component {
   }
   renderTable() {
     let columns = getColumns(this.props);
+    console.log(this.props.unit);
+    const pagination = {
+      current: this.props.unit.pageIndex,
+      pageSize: this.props.unit.pageSize,
+      total: this.props.unit.totalRow,
+      onChange: (pageIndex, pageSize) => {
+        let condition = this.props.form.getFieldsValue();
+        condition = {
+          ...condition,
+          pageIndex,
+          pageSize
+        };
+        this.props.dispatch({
+          type: "unit/queryUnitData",
+          payload: condition
+        });
+      }
+    };
     return (
       <Table
         columns={columns}
@@ -132,6 +150,7 @@ export default class Index extends Component {
         dataSource={this.props.unit.gridData}
         rowKey={r => r.id}
         locale={{ emptyText: "暂无数据" }}
+        pagination={pagination}
       />
     );
   }

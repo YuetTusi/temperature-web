@@ -3,6 +3,8 @@ import { request } from "@/utils/request";
 const model = {
   namespace: "unit",
   state: {
+    pageIndex: 1,
+    pageSize: 5,
     gridData: [],
     totalRow: 0,
     districtSelectData: [], //小区下拉
@@ -25,6 +27,8 @@ const model = {
     setGridData(state, action) {
       return {
         ...state,
+        pageIndex: action.payload.pageIndex,
+        pageSize: action.payload.pageSize,
         gridData: [...action.payload.data],
         totalRow: action.payload.totalRow
       };
@@ -43,14 +47,18 @@ const model = {
      * @param {Object} param1 SagaEffect
      */
     *queryUnitData({ payload }, { call, put }) {
-      const url = "unit/5/1";
+      let { pageIndex = 1, pageSize = 5 } = payload;
+      const url = `unit/${pageSize}/${pageIndex}`;
       let { code, data, totalRow, error } = yield call(request, {
         url,
         data: payload,
         method: "POST"
       });
       if (code === 0) {
-        yield put({ type: "setGridData", payload: { data, totalRow } });
+        yield put({
+          type: "setGridData",
+          payload: { data, totalRow, pageIndex, pageSize }
+        });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }
