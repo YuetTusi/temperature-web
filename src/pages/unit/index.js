@@ -11,6 +11,7 @@ import {
   Table
 } from "antd";
 import { getColumns } from "./data/columns";
+import EditModal from "./components/EditModal";
 
 @Form.create()
 @connect(state => ({ unit: state.unit }))
@@ -19,6 +20,23 @@ export default class Index extends Component {
     this.queryDistrictSelectData();
     this.queryUnitData();
   }
+  //添加按钮Click事件
+  addClick = e => {
+    this.props.dispatch({ type: "unit/toggleIsEdit", payload: false });
+    this.props.dispatch({ type: "unit/toggleShowModal", payload: true });
+  };
+  saveClick = e => {
+    const { validateFields } = this.editModalInstance.props.form;
+    validateFields((err, values) => {
+      if (!err) {
+        delete values.districtId;
+        this.props.dispatch({ type: "unit/saveUnit", payload: values });
+      }
+    });
+  };
+  cancelClick = e => {
+    this.props.dispatch({ type: "unit/toggleShowModal", payload: false });
+  };
   searchFormSubmit = e => {
     e.preventDefault();
     let { getFieldsValue } = this.props.form;
@@ -114,7 +132,7 @@ export default class Index extends Component {
           </Button>
         </Form.Item>
         <Form.Item>
-          <Button htmlType="button" type="default">
+          <Button htmlType="button" type="default" onClick={this.addClick}>
             <Icon type="plus" />
             <span>添加</span>
           </Button>
@@ -124,7 +142,6 @@ export default class Index extends Component {
   }
   renderTable() {
     let columns = getColumns(this.props);
-    console.log(this.props.unit);
     const pagination = {
       current: this.props.unit.pageIndex,
       pageSize: this.props.unit.pageSize,
@@ -163,6 +180,13 @@ export default class Index extends Component {
         {this.renderForm()}
         <Divider />
         {this.renderTable()}
+        <EditModal
+          title={this.props.isEdit ? "编辑单元" : "添加单元"}
+          visible={this.props.unit.showModal}
+          onOk={this.saveClick}
+          onCancel={this.cancelClick}
+          wrappedComponentRef={m => (this.editModalInstance = m)}
+        />
       </div>
     );
   }

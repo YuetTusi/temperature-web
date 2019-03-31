@@ -15,8 +15,11 @@ export default class Detail extends Component {
   }
   goBackClick(e) {
     this.props.history.replace("/unit");
-    // console.log(this.props.match.params.id);
   }
+  /**
+   * @description 渲染详情列表
+   * @param {String} id
+   */
   queryUnitDetail(id) {
     this.props.dispatch({ type: "unit/queryUnitById", payload: id });
   }

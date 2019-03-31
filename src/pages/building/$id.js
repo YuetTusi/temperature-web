@@ -17,7 +17,6 @@ export default class Detail extends Component {
   }
   renderDetail() {
     let { entity } = this.props.building;
-    console.log(entity);
     if (entity.id) {
       return (
         <List header={entity.no} bordered={true}>

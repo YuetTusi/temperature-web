@@ -10,6 +10,8 @@ const model = {
     districtSelectData: [], //小区下拉
     buildingSelectData: [], //楼栋下拉
     unit: {},
+    showModal: false,
+    isEdit: false, //是否为编辑
     errorMessage: null //错误消息
   },
   reducers: {
@@ -46,6 +48,18 @@ const model = {
         unit: {
           ...action.payload
         }
+      };
+    },
+    toggleShowModal(state, action) {
+      return {
+        ...state,
+        showModal: action.payload
+      };
+    },
+    toggleIsEdit(state, action) {
+      return {
+        ...state,
+        isEdit: action.payload
       };
     }
   },
@@ -111,6 +125,36 @@ const model = {
       let { code, data, error } = yield call(request, { url });
       if (code === 0) {
         yield put({ type: "setUnitDetail", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 保存单元
+     * @param {Obejct} param0 unit对象
+     * @param {Object} param1  SagaEffect
+     */
+    *saveUnit({ payload }, { call, put }) {
+      const url = "unit";
+      let result = null;
+      if (payload.id) {
+        //编辑
+        result = yield call(request, { url, method: "PUT", data: payload });
+      } else {
+        //新增
+        result = yield call(request, { url, method: "POST", data: payload });
+      }
+
+      let { code, data, error } = result;
+      if (code === 0) {
+        yield put({
+          type: "queryUnitData",
+          payload: {
+            pageIndex: 1,
+            pageSize: 5
+          }
+        });
+        yield put({ type: "toggleShowModal", payload: false });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }
