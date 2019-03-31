@@ -17,7 +17,11 @@ function getColumns({ dispatch }) {
       key: "name",
       dataIndex: "name",
       render(text, record) {
-        return <a data-id={record.id}>{text}</a>;
+        return (
+          <a data-id={record.id} href={`unit/${record.id}`}>
+            {text}
+          </a>
+        );
       }
     },
     {

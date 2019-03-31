@@ -9,6 +9,7 @@ const model = {
     totalRow: 0,
     districtSelectData: [], //小区下拉
     buildingSelectData: [], //楼栋下拉
+    unit: {},
     errorMessage: null //错误消息
   },
   reducers: {
@@ -37,6 +38,14 @@ const model = {
       return {
         ...state,
         errorMessage: action.payload
+      };
+    },
+    setUnitDetail(state, action) {
+      return {
+        ...state,
+        unit: {
+          ...action.payload
+        }
       };
     }
   },
@@ -87,6 +96,21 @@ const model = {
       let { code, data, error } = yield call(request, { url });
       if (code === 0) {
         yield put({ type: "setBuildingSelectData", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 按id查询详情
+     * @param {Obejct} param0 参数（id）
+     * @param {Object} param1  SagaEffect
+     */
+    *queryUnitById({ payload }, { call, put }) {
+      //setUnitDetail
+      let url = `unit/${payload}`;
+      let { code, data, error } = yield call(request, { url });
+      if (code === 0) {
+        yield put({ type: "setUnitDetail", payload: data });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }

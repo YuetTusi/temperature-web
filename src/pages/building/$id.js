@@ -42,7 +42,7 @@ export default class Detail extends Component {
             </span>
           </List.Item>
           <List.Item>
-            <label>修改时间：</label>
+            <label>状态：</label>
             <span>{entity.state == 1 ? "正常" : "禁用"}</span>
           </List.Item>
         </List>
