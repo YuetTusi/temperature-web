@@ -1,11 +1,12 @@
 import moment from "moment";
+import { message } from "antd";
 import { showConfirm } from "../components/Comfirm";
 import { Link } from "dva/router";
 /**
  * @description 小区表头配置
  * @param {Object} param0 Index组件props属性
  */
-function getDirectColumns({ dispatch }) {
+function getDirectColumns({ dispatch, district }, delDistrictData) {
   const columns = [
     {
       title: "名称",

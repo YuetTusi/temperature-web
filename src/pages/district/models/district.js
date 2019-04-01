@@ -1,4 +1,5 @@
 import { request } from "@/utils/request";
+import { message } from "antd";
 
 let model = {
   namespace: "district",
@@ -17,7 +18,8 @@ let model = {
       address: "",
       heat: "",
       state: 1
-    }
+    },
+    buildingCount: 0 //小区下的楼栋数量
   },
   reducers: {
     loadDistrictData(state, action) {
@@ -81,6 +83,12 @@ let model = {
       return {
         ...state,
         errorInfo: ""
+      };
+    },
+    setBuildingCount(state, action) {
+      return {
+        ...state,
+        buildingCount: Number.parseInt(action.payload)
       };
     }
   },
@@ -152,16 +160,38 @@ let model = {
      * @param {Object} Action payload为主键
      * @param {Object} SagaEffect
      */
-    *deleteDistrict({ payload }, { call, put }) {
+    *deleteDistrict({ payload }, { call, put, select }) {
       const url = `district/${payload}`;
-      let { code } = yield call(request, {
-        url,
-        method: "delete"
-      });
-      if (code === 0) {
-        yield put({ type: "queryDistrictData", payload: {} });
+      yield put.resolve({ type: "queryBuildingCount", payload }); //put.resolve为派发“阻塞”Action
+      let {
+        district: { buildingCount }
+      } = yield select();
+      if (buildingCount === 0) {
+        let { code } = yield call(request, {
+          url,
+          method: "delete"
+        });
+        if (code === 0) {
+          yield put({ type: "queryDistrictData", payload: {} });
+        } else {
+          yield put({ type: "errorInfo" });
+        }
       } else {
-        yield put({ type: "errorInfo" });
+        message.warning("该小区下存在楼栋数据，不可删除");
+      }
+    },
+    /**
+     * @description 查询小区下的楼栋数量
+     * @param {Object} param0 小区id
+     * @param {Object} param1 SagaEffect
+     */
+    *queryBuildingCount({ payload }, { call, put }) {
+      const url = `district/${payload}/building`;
+      let { data, code, error } = yield call(request, { url });
+      if (code === 0) {
+        yield put({ type: "setBuildingCount", payload: data });
+      } else {
+        yield put({ type: "setErrorInfo", error });
       }
     }
   },
