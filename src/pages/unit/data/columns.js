@@ -1,4 +1,6 @@
 import moment from "moment";
+import { Link } from "dva/router";
+import { showConfirm } from "@/components/Confirm";
 
 function getColumns({ dispatch }) {
   let columns = [
@@ -17,11 +19,8 @@ function getColumns({ dispatch }) {
       key: "name",
       dataIndex: "name",
       render(text, record) {
-        return (
-          <a data-id={record.id} href={`unit/${record.id}`}>
-            {text}
-          </a>
-        );
+        // return <a>abc</a>
+        return <Link to={`unit/${record.id}`}>{text}</Link>;
       }
     },
     {
@@ -52,7 +51,17 @@ function getColumns({ dispatch }) {
       title: "编辑",
       key: "edit",
       render(text, record) {
-        return <a data-id={record.id}>编辑</a>;
+        return (
+          <a
+            data-id={record.id}
+            onClick={() => {
+              dispatch({ type: "unit/queryUnitById", payload: record.id });
+              dispatch({ type: "unit/toggleShowModal", payload: true });
+            }}
+          >
+            编辑
+          </a>
+        );
       },
       align: "center"
     },
@@ -61,7 +70,22 @@ function getColumns({ dispatch }) {
       key: "del",
       align: "center",
       render(text, record) {
-        return <a data-id={record.id}>删除</a>;
+        return (
+          <a
+            data-id={record.id}
+            onClick={() => {
+              showConfirm(
+                "询问",
+                `确认删除「${record.name}」的记录吗？`,
+                () => {
+                  dispatch({ type: "unit/delUnit", payload: record.id });
+                }
+              );
+            }}
+          >
+            删除
+          </a>
+        );
       }
     }
   ];

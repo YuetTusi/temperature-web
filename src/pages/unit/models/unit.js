@@ -10,6 +10,7 @@ const model = {
     districtSelectData: [], //小区下拉
     buildingSelectData: [], //楼栋下拉
     unit: {},
+    isLoading: false, //正在读取标志
     showModal: false,
     isEdit: false, //是否为编辑
     errorMessage: null //错误消息
@@ -53,13 +54,26 @@ const model = {
     toggleShowModal(state, action) {
       return {
         ...state,
-        showModal: action.payload
+        showModal: action.payload,
+        unit: {}
       };
     },
     toggleIsEdit(state, action) {
       return {
         ...state,
         isEdit: action.payload
+      };
+    },
+    toggleIsLoading(state, action) {
+      return {
+        ...state,
+        isLoading: action.payload
+      };
+    },
+    clearUnit(state, action) {
+      return {
+        ...state,
+        unit: {}
       };
     }
   },
@@ -72,6 +86,7 @@ const model = {
     *queryUnitData({ payload }, { call, put }) {
       let { pageIndex = 1, pageSize = 5 } = payload;
       const url = `unit/${pageSize}/${pageIndex}`;
+      yield put({ type: "toggleIsLoading", payload: true });
       let { code, data, totalRow, error } = yield call(request, {
         url,
         data: payload,
@@ -85,6 +100,7 @@ const model = {
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }
+      yield put({ type: "toggleIsLoading", payload: false });
     },
     /**
      * @description 查询小区下拉数据
@@ -102,7 +118,7 @@ const model = {
     },
     /**
      * @description 查询小区下的楼栋数据
-     * @param {Object} param0 参数
+     * @param {Object} param0 小区id
      * @param {Object} param1 SagaEffect
      */
     *queryBuildingSelectData({ payload }, { call, put }) {
@@ -125,6 +141,10 @@ const model = {
       let { code, data, error } = yield call(request, { url });
       if (code === 0) {
         yield put({ type: "setUnitDetail", payload: data });
+        yield put({
+          type: "queryBuildingSelectData",
+          payload: data.districtId
+        });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }
@@ -155,6 +175,23 @@ const model = {
           }
         });
         yield put({ type: "toggleShowModal", payload: false });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 删除单元
+     * @param {*} param0 主键id
+     * @param {*} param1 SagaEffect
+     */
+    *delUnit({ payload }, { call, put }) {
+      const url = `unit/${payload}`;
+      let { code, error } = yield call(request, { url, method: "DELETE" });
+      if (code === 0) {
+        yield put({
+          type: "queryUnitData",
+          payload: { pageIndex: 1, pageSize: 5 }
+        });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }

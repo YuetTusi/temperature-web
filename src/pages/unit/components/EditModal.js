@@ -41,6 +41,7 @@ export default class EditModal extends Component {
     });
   }
   render() {
+    let { unit } = this.props.unit;
     const formItemLayout = {
       labelCol: { span: 4 }, //标签占宽
       wrapperCol: { span: 18 } //输入域占宽
@@ -58,11 +59,14 @@ export default class EditModal extends Component {
       >
         <Form {...formItemLayout}>
           <Form.Item>
-            {getFieldDecorator("id")(<Input type="hidden" />)}
+            {getFieldDecorator("id", {
+              initialValue: unit.id
+            })(<Input type="hidden" />)}
           </Form.Item>
           <Form.Item label="所属小区">
             {getFieldDecorator("districtId", {
-              rules: [{ required: true, message: "请选择小区" }]
+              rules: [{ required: true, message: "请选择小区" }],
+              initialValue: unit.districtId
             })(
               <Select onChange={this.districtSelectChange}>
                 {this.renderDistrictSelect()}
@@ -71,7 +75,8 @@ export default class EditModal extends Component {
           </Form.Item>
           <Form.Item label="所属楼栋">
             {getFieldDecorator("buildingId", {
-              rules: [{ required: true, message: "请选择楼栋" }]
+              rules: [{ required: true, message: "请选择楼栋" }],
+              initialValue: unit.buildingId
             })(
               <Select notFoundContent={"暂无数据"}>
                 {this.renderBuildingSelect()}
@@ -80,13 +85,15 @@ export default class EditModal extends Component {
           </Form.Item>
           <Form.Item label="单元">
             {getFieldDecorator("name", {
-              rules: [{ required: true, message: "请填写单元" }]
+              rules: [{ required: true, message: "请填写单元" }],
+              initialValue: unit.name
             })(<Input />)}
           </Form.Item>
           <Form.Item label="状态">
             {getFieldDecorator("state", {
               rules: [{ required: true }],
-              initialValue: "1"
+              initialValue:
+                unit.state === undefined ? "1" : unit.state.toString()
             })(
               <Select>
                 <Select.Option value="1">正常</Select.Option>

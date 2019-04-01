@@ -168,6 +168,7 @@ export default class Index extends Component {
         rowKey={r => r.id}
         locale={{ emptyText: "暂无数据" }}
         pagination={pagination}
+        loading={this.props.unit.isLoading}
       />
     );
   }
