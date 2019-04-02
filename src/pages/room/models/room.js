@@ -14,7 +14,8 @@ let model = {
     errorMessage: null,
     districtSelect: [], //小区select
     buildingSelect: [], //楼栋select
-    unitSelect: [] //单元select
+    unitSelect: [], //单元select
+    room: {} //房间详情
   },
   reducers: {
     setRoomGirdData(state, action) {
@@ -48,6 +49,14 @@ let model = {
       return {
         ...state,
         unitSelect: [...action.payload]
+      };
+    },
+    setRoom(state, action) {
+      return {
+        ...state,
+        room: {
+          ...action.payload
+        }
       };
     },
     setErrorMessage(state, action) {
@@ -126,6 +135,21 @@ let model = {
       let { data, code, error } = yield call(request, { url });
       if (code === 0) {
         yield put({ type: "setUnitSelect", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 按id查询详情
+     * @param {Object} param0 房间id
+     * @param {Object} param1 SagaEffect
+     */
+    *queryRoomById({ payload }, { call, put }) {
+      const url = `room/${payload}`;
+      let { code, data, error } = yield call(request, { url });
+      if (code === 0) {
+        data = data.length > 0 ? data[0] : {};
+        yield put({ type: "setRoom", payload: data });
       } else {
         yield put({ type: "setErrorMessage", payload: error });
       }

@@ -162,7 +162,11 @@ export default class Index extends Component {
     const pagination = {
       current: this.props.room.pageIndex,
       pageSize: this.props.room.pageSize,
-      total: this.props.room.totalRow
+      total: this.props.room.totalRow,
+      onChange:(current,pageSize)=>{
+        console.log(current);
+        console.log(pageSize);
+      }
     };
     return (
       <Table
