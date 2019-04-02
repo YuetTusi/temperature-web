@@ -11,7 +11,10 @@ let model = {
     totalRow: 0,
     gridData: [],
     isLoading: false, //正在读取标志
-    errorMessage: null
+    errorMessage: null,
+    districtSelect: [], //小区select
+    buildingSelect: [], //楼栋select
+    unitSelect: [] //单元select
   },
   reducers: {
     setRoomGirdData(state, action) {
@@ -27,6 +30,24 @@ let model = {
       return {
         ...state,
         isLoading: action.payload
+      };
+    },
+    setDistrictSelect(state, action) {
+      return {
+        ...state,
+        districtSelect: [...action.payload]
+      };
+    },
+    setBuildingSelect(state, action) {
+      return {
+        ...state,
+        buildingSelect: [...action.payload]
+      };
+    },
+    setUnitSelect(state, action) {
+      return {
+        ...state,
+        unitSelect: [...action.payload]
       };
     },
     setErrorMessage(state, action) {
@@ -64,6 +85,50 @@ let model = {
         yield put({ type: "setErrorMessage", payload: error });
       }
       yield put({ type: "toggleIsLoading", payload: false });
+    },
+    /**
+     * @description 查询 小区下拉
+     * @param {Object} param0 无参数
+     * @param {Object} param1 SagaEffect
+     */
+    *queryDistrictSelect({ payload }, { call, put }) {
+      const url = "district";
+      let { code, data, error } = yield call(request, { url });
+      if (code === 0) {
+        yield put({ type: "setDistrictSelect", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 查询小区下的楼栋下拉
+     * @param {Object} param0 小区id
+     * @param {Object} param1 SagaEffect
+     */
+    *queryBuildingSelectByDistrict({ payload }, { call, put }) {
+      payload = payload ? payload : "-1";
+      const url = `building/${payload}/district`;
+      let { data, code, error } = yield call(request, { url });
+      if (code === 0) {
+        yield put({ type: "setBuildingSelect", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 查询楼栋下的单元
+     * @param {Object} param0 楼栋id
+     * @param {Object} param1 SagaEffect
+     */
+    *queryUnitSelectByBuilding({ payload }, { call, put }) {
+      payload = payload ? payload : "-1";
+      const url = `unit/${payload}/building`;
+      let { data, code, error } = yield call(request, { url });
+      if (code === 0) {
+        yield put({ type: "setUnitSelect", payload: data });
+      } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
     }
   }
 };
