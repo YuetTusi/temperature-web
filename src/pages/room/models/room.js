@@ -1,5 +1,5 @@
 import { request } from "@/utils/request";
-
+import { message } from "antd";
 /**
  * 房间Room
  */
@@ -15,7 +15,8 @@ let model = {
     districtSelect: [], //小区select
     buildingSelect: [], //楼栋select
     unitSelect: [], //单元select
-    room: {} //房间详情
+    room: {}, //房间详情
+    isShowModal: false //是否打开编辑框
   },
   reducers: {
     setRoomGirdData(state, action) {
@@ -57,6 +58,18 @@ let model = {
         room: {
           ...action.payload
         }
+      };
+    },
+    toggleIsShow(state, action) {
+      return {
+        ...state,
+        isShowModal: action.payload
+      };
+    },
+    clearRoom(state, action) {
+      return {
+        ...state,
+        room: Object.create(null)
       };
     },
     setErrorMessage(state, action) {
@@ -151,6 +164,49 @@ let model = {
         data = data.length > 0 ? data[0] : {};
         yield put({ type: "setRoom", payload: data });
       } else {
+        yield put({ type: "setErrorMessage", payload: error });
+      }
+    },
+    /**
+     * @description 保存房间实体（无id为新增操作）
+     * @param {Object} payload 房间实体
+     * @param {Object} effects SagaEffect
+     */
+    *saveOrUpdateRoom({ payload }, { call, put }) {
+      const url = "room";
+      let method = payload.id ? "PUT" : "POST";
+      let { code, error } = yield call(request, {
+        url,
+        method,
+        data: payload
+      });
+      if (code === 0) {
+        yield put({
+          type: "queryRoomData",
+          payload: { pageIndex: 1, pageSize: 5 }
+        });
+        yield put({ type: "toggleIsShow", payload: false });
+        yield put({ type: "clearRoom" });
+      } else {
+        message.warning("数据保存失败");
+        yield put({ type: "setErrorMessage", error });
+      }
+    },
+    /**
+     * @description 删除房间
+     * @param {Object} param0 id
+     * @param {Object} param1 SagaEffect
+     */
+    *delRoom({ payload }, { call, put }) {
+      const url = `room/${payload}`;
+      let { code, error } = yield call(request, { url, method: "DELETE" });
+      if (code === 0) {
+        yield put({
+          type: "queryRoomData",
+          payload: { pageIndex: 1, pageSize: 5 }
+        });
+      } else {
+        message.warning("数据删除失败");
         yield put({ type: "setErrorMessage", payload: error });
       }
     }

@@ -11,12 +11,17 @@ import {
   Row,
   Col
 } from "antd";
+import EditModal from "./components/EditModal";
 import { connect } from "dva";
 import { getColumns } from "./data/columns";
 
 @Form.create()
 @connect(state => ({ room: state.room }))
 export default class Index extends Component {
+  constructor(props) {
+    super(props);
+    // this.saveClick = this.saveClick.bind(this);
+  }
   componentDidMount() {
     this.queryRoomData({
       pageIndex: 1,
@@ -147,7 +152,7 @@ export default class Index extends Component {
               </Button>
             </Form.Item>
             <Form.Item>
-              <Button>
+              <Button onClick={this.addClick}>
                 <Icon type="plus" />
                 <span>添加</span>
               </Button>
@@ -159,13 +164,17 @@ export default class Index extends Component {
   }
   renderTable() {
     let columns = getColumns(this.props);
+    let condition = this.props.form.getFieldsValue();
     const pagination = {
       current: this.props.room.pageIndex,
       pageSize: this.props.room.pageSize,
       total: this.props.room.totalRow,
-      onChange:(current,pageSize)=>{
-        console.log(current);
-        console.log(pageSize);
+      onChange: (pageIndex, pageSize) => {
+        this.queryRoomData({
+          ...condition,
+          pageIndex,
+          pageSize
+        });
       }
     };
     return (
@@ -183,6 +192,13 @@ export default class Index extends Component {
   }
   queryRoomData(condition) {
     this.props.dispatch({ type: "room/queryRoomData", payload: condition });
+  }
+  /**
+   * @description 保存房间数据
+   * @param {Object} entity 实体对象
+   */
+  saveOrUpdateRoom(entity) {
+    this.props.dispatch({ type: "room/saveOrUpdateRoom", payload: entity });
   }
   districtSelectChange = val => {
     let { setFieldsValue } = this.props.form;
@@ -207,6 +223,27 @@ export default class Index extends Component {
       ...condition
     });
   };
+  addClick = e => {
+    this.props.dispatch({ type: "room/toggleIsShow", payload: true });
+  };
+  saveClick = e => {
+    let { validateFields } = this.editModal.props.form;
+    validateFields((err, values) => {
+      if (!err) {
+        let entity = {
+          id: values.editId,
+          unitId: values.editUnitId,
+          state: values.editState,
+          no: values.editNo
+        };
+        this.saveOrUpdateRoom(entity);
+      }
+    });
+  };
+  cancelClick = e => {
+    this.props.dispatch({ type: "room/clearRoom" });
+    this.props.dispatch({ type: "room/toggleIsShow", payload: false });
+  };
   render() {
     return (
       <div>
@@ -216,6 +253,15 @@ export default class Index extends Component {
         {this.renderForm()}
         <Divider />
         {this.renderTable()}
+        <EditModal
+          title={"编辑"}
+          visible={this.props.room.isShowModal}
+          onOk={this.saveClick}
+          onCancel={this.cancelClick}
+          wrappedComponentRef={m => {
+            this.editModal = m;
+          }}
+        />
       </div>
     );
   }
