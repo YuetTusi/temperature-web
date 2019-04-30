@@ -52,6 +52,7 @@ let model = {
         unitSelect: [...action.payload]
       };
     },
+
     setRoom(state, action) {
       return {
         ...state,

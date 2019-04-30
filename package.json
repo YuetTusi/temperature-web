@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "dva": "^2.4.1",
+    "echarts": "^4.2.1",
     "umi": "^1.0.0",
     "umi-plugin-dva": "^0.7.1",
     "webpack-chain": "^5.2.2"

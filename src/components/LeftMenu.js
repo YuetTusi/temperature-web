@@ -11,7 +11,7 @@ class LeftMenu extends Component {
         <Menu mode="vertical">
           <Menu.Item key="1">
             <Icon type="line-chart" />
-            <span><a href="/chart">气温曲线</a></span>
+            <span><a href="/temp">气温曲线</a></span>
           </Menu.Item>
           <Menu.Item key="2">
             <Icon type="table" />
